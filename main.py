@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -5,6 +7,7 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.callbacks import LearningRateScheduler
+from datetime import datetime
 
 data = pd.read_csv(
     "C:/Users/Usuario/Desktop/TFG/DatosGenes/DatosTratadosPocosCSV.csv",  delimiter=';',
@@ -59,8 +62,25 @@ model = tf.keras.Sequential([
 model.compile(loss = tf.losses.MeanSquaredError(),
                       optimizer = tf.optimizers.Adam(learning_rate=1e-3))
 
-model.fit(train_features, train_labels, batch_size=30, epochs=3000, validation_split=0.15)
+model.fit(train_features, train_labels, batch_size=30, epochs=1, validation_split=0.15)
 
+# Define the directory where you want to save the model
+base_directory = 'C:/Users/Usuario/Desktop/TFG/ProyectoTFG/Modelos/'
+
+# Change the current working directory to the base directory
+os.chdir(base_directory)
+
+# datetime object containing current date and time
+now = datetime.now()
+# dd/mm/YY H:M:S
+dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
+
+# Create a new directory using the formatted datetime string
+new_directory = os.path.join(base_directory, dt_string)
+os.makedirs(new_directory)
+
+# Save the model inside the new directory
+model.save(os.path.join(new_directory, 'Modelo.h5'))
 
 # Evaluate the model on the test set
 test_loss = model.evaluate(test_features, test_labels)
@@ -69,13 +89,11 @@ print("Test Loss:", test_loss)
 # Make predictions on the test set
 predictions = model.predict(test_features)
 
-"""
 print("###############################################################")
-print(test_labels[0])
+print('Valor actual %f' % test_labels[263])
 print("\n\n\n")
-print(predictions[0])
+print("Valor predicho %f" % predictions[263])
 print("###############################################################")
-"""
 
 # Plot actual vs predicted ages
 plt.figure(figsize=(10, 6))
@@ -86,4 +104,11 @@ plt.ylabel('Predicted probability')
 plt.title('Actual vs Predicted probability')
 plt.legend()
 plt.grid(True)
+plt.savefig(os.path.join(new_directory, 'plot_image.png'))
 plt.show()
+
+# Save variables to a text file
+with open(os.path.join(new_directory, 'variables.txt'), 'w') as file:
+    file.write(f"Test loss: {test_loss}\n")
+    file.write(f"Valor real: {test_labels[263]}\n")
+    file.write(f"Valor predicho: {predictions[263]}\n")
