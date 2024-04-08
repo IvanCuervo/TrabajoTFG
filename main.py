@@ -8,11 +8,11 @@ import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.callbacks import LearningRateScheduler
 from datetime import datetime
+from tensorflow.keras.callbacks import EarlyStopping
 
 data = pd.read_csv(
-    "C:/Users/Usuario/Desktop/TFG/DatosGenes/DatosTratadosPocosCSV.csv",  delimiter=';',
+    "C:/Users/Usuario/Desktop/TFG/DatosGenes/DatosTratadosTodos.csv",  delimiter=';',
     names=["code_column", "Probability"])
-
 
 # Convert the code column to string
 data['code_column'] = data['code_column'].astype(str)
@@ -42,7 +42,7 @@ while nan_counts.sum() != 0:
 # Convert the DataFrame to a NumPy array
 data_features = data_encoded.to_numpy()
 
-# Assuming 'X' contains the digit columns and 'y' contains the 'Probability' column
+# 'X' contains the digit columns and 'y' contains the 'Probability' column
 prob_label = data_features[:, 0]   # Select all rows and the first column
 code_features = data_features[:, 1:]
 
@@ -59,10 +59,15 @@ model = tf.keras.Sequential([
     layers.Dense(1)
 ])
 
-model.compile(loss = tf.losses.MeanSquaredError(),
+
+my_callbacks = [
+    EarlyStopping(monitor="val_loss", patience=100),
+]
+
+model.compile(loss = tf.losses.MeanSquaredLogarithmicError(),
                       optimizer = tf.optimizers.Adam(learning_rate=1e-3))
 
-model.fit(train_features, train_labels, batch_size=30, epochs=1, validation_split=0.15)
+model.fit(train_features, train_labels, batch_size=30, epochs=2200, validation_split=0.15)
 
 # Define the directory where you want to save the model
 base_directory = 'C:/Users/Usuario/Desktop/TFG/ProyectoTFG/Modelos/'
@@ -95,7 +100,7 @@ print("\n\n\n")
 print("Valor predicho %f" % predictions[263])
 print("###############################################################")
 
-# Plot actual vs predicted ages
+# Plot actual vs predicted probability
 plt.figure(figsize=(10, 6))
 plt.scatter(test_labels, predictions, color='blue', label='Predictions')
 plt.plot([test_labels.min(), test_labels.max()], [test_labels.min(), test_labels.max()], 'k--', lw=3, color='red', label='Actual')
