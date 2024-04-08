@@ -52,10 +52,9 @@ normalize = layers.Normalization()
 
 model = tf.keras.Sequential([
     normalize,
-    layers.Dense(128, activation='relu', input_shape=(code_features.shape[1],)),
+    layers.Dense(64, activation='relu', input_shape=(code_features.shape[1],)),
     layers.Dense(128, activation='sigmoid'),
     layers.Dense(256, activation='sigmoid'),
-    layers.Dense(128, activation='sigmoid'),
     layers.Dense(1)
 ])
 
