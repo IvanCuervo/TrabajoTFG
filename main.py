@@ -52,9 +52,9 @@ normalize = layers.Normalization()
 
 model = tf.keras.Sequential([
     normalize,
-    layers.Dense(64, activation='relu', input_shape=(code_features.shape[1],)),
+    layers.Dense(32, activation='relu', input_shape=(code_features.shape[1],)),
+    layers.Dense(64, activation='sigmoid'),
     layers.Dense(128, activation='sigmoid'),
-    layers.Dense(256, activation='sigmoid'),
     layers.Dense(1)
 ])
 
@@ -66,7 +66,7 @@ my_callbacks = [
 model.compile(loss = tf.losses.MeanSquaredLogarithmicError(),
                       optimizer = tf.optimizers.Adam(learning_rate=1e-3))
 
-model.fit(train_features, train_labels, batch_size=30, epochs=2200, validation_split=0.15)
+model.fit(train_features, train_labels, batch_size=30, epochs=1100, validation_split=0.15)
 
 # Define the directory where you want to save the model
 base_directory = 'C:/Users/Usuario/Desktop/TFG/ProyectoTFG/Modelos/'
