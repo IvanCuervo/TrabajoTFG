@@ -9,6 +9,7 @@ from tensorflow.keras import layers
 from tensorflow.keras.callbacks import LearningRateScheduler
 from datetime import datetime
 from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import History
 
 data = pd.read_csv(
     "C:/Users/Usuario/Desktop/TFG/DatosGenes/DatosTratadosTodos.csv",  delimiter=';',
@@ -66,7 +67,7 @@ my_callbacks = [
 model.compile(loss = tf.losses.MeanSquaredLogarithmicError(),
                       optimizer = tf.optimizers.Adam(learning_rate=1e-3))
 
-model.fit(train_features, train_labels, batch_size=30, epochs=1100, validation_split=0.15)
+history = model.fit(train_features, train_labels, batch_size=30, epochs=400, validation_split=0.15)
 
 # Define the directory where you want to save the model
 base_directory = 'C:/Users/Usuario/Desktop/TFG/ProyectoTFG/Modelos/'
@@ -99,6 +100,7 @@ print("\n\n\n")
 print("Valor predicho %f" % predictions[263])
 print("###############################################################")
 
+
 # Plot actual vs predicted probability
 plt.figure(figsize=(10, 6))
 plt.scatter(test_labels, predictions, color='blue', label='Predictions')
@@ -108,7 +110,27 @@ plt.ylabel('Predicted probability')
 plt.title('Actual vs Predicted probability')
 plt.legend()
 plt.grid(True)
-plt.savefig(os.path.join(new_directory, 'plot_image.png'))
+plt.savefig(os.path.join(new_directory, 'puntos.png'))
+plt.show()
+
+
+
+training_loss = history.history['loss']
+
+validation_loss = history.history['val_loss']
+
+# Assuming you have arrays of training loss and validation loss
+epochs = range(1, len(training_loss) + 1)
+
+plt.figure(figsize=(10, 6))
+plt.plot(epochs, training_loss, 'b', label='Training Loss')
+plt.plot(epochs, validation_loss, 'r', label='Validation Loss')
+plt.title('Training and Validation Loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+plt.grid(True)
+plt.savefig(os.path.join(new_directory, 'grafica.png'))
 plt.show()
 
 # Save variables to a text file
