@@ -5,14 +5,40 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import tensorflow as tf
+from tensorflow.python.keras import layers
+from tensorflow.python.keras.callbacks import LearningRateScheduler
+from datetime import datetime
+from tensorflow.python.keras.callbacks import EarlyStopping
+
+# Check if GPU is available
+print(tf.config.list_physical_devices('GPU'))
+
+"""
+Imports for local environment
+
+
+import os
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+import tensorflow as tf
 from tensorflow.keras import layers
 from tensorflow.keras.callbacks import LearningRateScheduler
 from datetime import datetime
 from tensorflow.keras.callbacks import EarlyStopping
+        
+"""
 
+"""
 data = pd.read_csv(
     "C:/Users/Usuario/Desktop/TFG/DatosGenes/DatosTratadosTodos.csv",  delimiter=';',
     names=["code_column", "Probability"])
+"""
+data = pd.read_csv(
+    "/home/ivan/TrabajoTFG/DatosGenes/DatosTratadosTodos.csv",  delimiter=';',
+    names=["code_column", "Probability"])
+
 
 # Convert the code column to string
 data['code_column'] = data['code_column'].astype(str)
@@ -48,12 +74,14 @@ code_features = data_features[:, 1:]
 
 train_features, test_features, train_labels, test_labels = train_test_split(code_features, prob_label, test_size=0.1, random_state=42)
 
-normalize = layers.Normalization()
+normalize = tf.keras.layers.experimental.preprocessing.Normalization()
 
 model = tf.keras.Sequential([
     normalize,
     layers.Dense(32, activation='relu', input_shape=(code_features.shape[1],)),
+    tf.keras.layers.Dropout(0.2),
     layers.Dense(64, activation='sigmoid'),
+    tf.keras.layers.Dropout(0.2),
     layers.Dense(128, activation='sigmoid'),
     layers.Dense(1)
 ])
@@ -66,10 +94,10 @@ my_callbacks = [
 model.compile(loss = tf.losses.MeanSquaredLogarithmicError(),
                       optimizer = tf.optimizers.Adam(learning_rate=1e-3))
 
-model.fit(train_features, train_labels, batch_size=30, epochs=1100, validation_split=0.15)
-
+model.fit(train_features, train_labels, batch_size=30, epochs=2200, validation_split=0.15)
+"""
 # Define the directory where you want to save the model
-base_directory = 'C:/Users/Usuario/Desktop/TFG/ProyectoTFG/Modelos/'
+base_directory = '/home/ivan/TrabajoTFG/Modelos'
 
 # Change the current working directory to the base directory
 os.chdir(base_directory)
@@ -85,6 +113,7 @@ os.makedirs(new_directory)
 
 # Save the model inside the new directory
 model.save(os.path.join(new_directory, 'Modelo.h5'))
+"""
 
 # Evaluate the model on the test set
 test_loss = model.evaluate(test_features, test_labels)
@@ -108,11 +137,13 @@ plt.ylabel('Predicted probability')
 plt.title('Actual vs Predicted probability')
 plt.legend()
 plt.grid(True)
-plt.savefig(os.path.join(new_directory, 'plot_image.png'))
+#plt.savefig(os.path.join(new_directory, 'plot_image.png'))
 plt.show()
 
+"""
 # Save variables to a text file
 with open(os.path.join(new_directory, 'variables.txt'), 'w') as file:
     file.write(f"Test loss: {test_loss}\n")
     file.write(f"Valor real: {test_labels[263]}\n")
     file.write(f"Valor predicho: {predictions[263]}\n")
+    """
