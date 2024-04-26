@@ -87,9 +87,9 @@ my_callbacks = [
 ]
 
 model.compile(loss=root_mean_squared_error, 
-              optimizer = tf.optimizers.Adam(learning_rate=1e-2))
+              optimizer = tf.optimizers.Adam(learning_rate=1e-6))
 
-history = model.fit(train_features, train_labels, batch_size=20, epochs=5, validation_data=(val_features, val_labels))
+history = model.fit(train_features, train_labels, batch_size=40, epochs=2, validation_data=(val_features, val_labels))
 
 # Define the directory where you want to save the model
 base_directory = '/home/ivan/TrabajoTFG/Modelos'
@@ -109,10 +109,11 @@ os.makedirs(new_directory)
 # Save the model inside the new directory
 #model.save(os.path.join(new_directory, 'Modelo.h5'))
 
+"""
 # Evaluate the model on the test set
 test_loss = model.evaluate(test_features, test_labels)
 print("Test Loss:", test_loss)
-
+"""
 # Make predictions on the test set
 predictions = model.predict(test_features)
 
@@ -121,6 +122,8 @@ predictions = model.predict(test_features)
 ################################################ BASELINES ################################################
 
 y_pred_b_rnd = np.random.random(len(test_labels)) #Random values
+merged_array = np.concatenate((train_labels, val_labels))
+y_pred_b_avg = [np.mean(merged_array)]*len(test_labels) # Baseline media (OJO, LA MEDIA SE OBTIENE DEL CONJUNTO DE ENTRENAMIENTO [O ENTRENAMIENTO+VAL] Y LA LOSS SERÍA SOBRE EL TEST)
 
 
 
@@ -130,13 +133,27 @@ mae_rnd = mean_absolute_error(test_labels, y_pred_b_rnd)
 rmse_rnd = root_mean_squared_error(test_labels, y_pred_b_rnd)
 mse_rnd = mean_squared_error(test_labels, y_pred_b_rnd)
 
+
+rmse_avg = root_mean_squared_error(test_labels, y_pred_b_avg)
+mse_avg = mean_squared_error(test_labels, y_pred_b_avg)
+mae_avg = mean_absolute_error(test_labels, y_pred_b_avg)
+
 ################################################################################################
 
 
 
+print(f"Modelo             | {'RMSE':6s} |")
+print("-"*47)
+print(f"Baseline aleatorio | {rmse_rnd.numpy():0.4f} |")
+print(f"Baseline media     | {rmse_avg.numpy():0.4f} |")
+print(f"Mi modelo          | {root_mean_squared_error(test_labels, predictions).numpy():0.4f} |")
 
+""""
 print("###############################################################")
 print("Modelo random: ", rmse_rnd.numpy())
+print("###############################################################")
+print("###############################################################")
+print("Modelo random: ", rmse_.numpy())
 print("###############################################################")
 print("###############################################################")
 print("Mi modelo: ", root_mean_squared_error(test_labels, predictions).numpy())
@@ -146,7 +163,7 @@ print('Valor actual %f' % test_labels[263])
 print("\n\n\n")
 print("Valor predicho %f" % predictions[263, 0])
 print("###############################################################")
-
+"""
 # Plot actual vs predicted probability
 plt.figure(figsize=(10, 6))
 plt.scatter(test_labels, predictions, color='blue', label='Predictions')
