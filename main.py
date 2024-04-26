@@ -148,22 +148,6 @@ print(f"Baseline aleatorio | {rmse_rnd.numpy():0.4f} |")
 print(f"Baseline media     | {rmse_avg.numpy():0.4f} |")
 print(f"Mi modelo          | {root_mean_squared_error(test_labels, predictions).numpy():0.4f} |")
 
-""""
-print("###############################################################")
-print("Modelo random: ", rmse_rnd.numpy())
-print("###############################################################")
-print("###############################################################")
-print("Modelo random: ", rmse_.numpy())
-print("###############################################################")
-print("###############################################################")
-print("Mi modelo: ", root_mean_squared_error(test_labels, predictions).numpy())
-print("###############################################################")
-print("###############################################################")
-print('Valor actual %f' % test_labels[263])
-print("\n\n\n")
-print("Valor predicho %f" % predictions[263, 0])
-print("###############################################################")
-"""
 # Plot actual vs predicted probability
 plt.figure(figsize=(10, 6))
 plt.scatter(test_labels, predictions, color='blue', label='Predictions')
@@ -196,6 +180,6 @@ plt.savefig(os.path.join(new_directory, 'grafica.png'))
 
 # Save variables to a text file
 with open(os.path.join(new_directory, 'variables.txt'), 'w') as file:
-    file.write(f"Test loss: {test_loss}\n")
-    file.write(f"Valor real: {test_labels[263]}\n")
-    file.write(f"Valor predicho: {predictions[263]}\n")
+    file.write(f"Baseline aleatorio: {rmse_rnd.numpy()}\n")
+    file.write(f"Baseline media: {rmse_avg.numpy()}\n")
+    file.write(f"Mi modelo: {root_mean_squared_error(test_labels, predictions).numpy()}\n")
