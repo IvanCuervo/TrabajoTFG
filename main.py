@@ -87,10 +87,10 @@ my_callbacks = [
 ]
 
 model.compile(loss=root_mean_squared_error, 
-              optimizer = tf.optimizers.Adam(learning_rate=1e-3))
+              optimizer = tf.optimizers.Adam(learning_rate=1e-2))
 
-model.fit(train_features, train_labels, batch_size=20, epochs=1000, validation_data=(val_features, val_labels))
-"""
+history = model.fit(train_features, train_labels, batch_size=20, epochs=5, validation_data=(val_features, val_labels))
+
 # Define the directory where you want to save the model
 base_directory = '/home/ivan/TrabajoTFG/Modelos'
 
@@ -107,8 +107,7 @@ new_directory = os.path.join(base_directory, dt_string)
 os.makedirs(new_directory)
 
 # Save the model inside the new directory
-model.save(os.path.join(new_directory, 'Modelo.h5'))
-"""
+#model.save(os.path.join(new_directory, 'Modelo.h5'))
 
 # Evaluate the model on the test set
 test_loss = model.evaluate(test_features, test_labels)
@@ -157,13 +156,29 @@ plt.ylabel('Predicted probability')
 plt.title('Actual vs Predicted probability')
 plt.legend()
 plt.grid(True)
-#plt.savefig(os.path.join(new_directory, 'plot_image.png'))
-#plt.show()
+plt.savefig(os.path.join(new_directory, 'puntos.png'))
 
-"""
+
+training_loss = history.history['loss']
+
+validation_loss = history.history['val_loss']
+
+# Assuming you have arrays of training loss and validation loss
+epochs = range(1, len(training_loss) + 1)
+
+plt.figure(figsize=(10, 6))
+plt.plot(epochs, training_loss, 'b', label='Training Loss')
+plt.plot(epochs, validation_loss, 'r', label='Validation Loss')
+plt.title('Training and Validation Loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+plt.grid(True)
+plt.savefig(os.path.join(new_directory, 'grafica.png'))
+
+
 # Save variables to a text file
 with open(os.path.join(new_directory, 'variables.txt'), 'w') as file:
     file.write(f"Test loss: {test_loss}\n")
     file.write(f"Valor real: {test_labels[263]}\n")
     file.write(f"Valor predicho: {predictions[263]}\n")
-    """
