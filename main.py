@@ -70,19 +70,20 @@ normalize = tf.keras.layers.experimental.preprocessing.Normalization()
 
 model = tf.keras.Sequential([
     normalize,
-    layers.Dense(16, activation='relu', input_shape=(code_features.shape[1],)),
-    layers.Dense(32, activation='sigmoid'),
-    layers.Dense(1)
+    layers.Dense(64, activation='relu', input_shape=(code_features.shape[1],)),
+    layers.Dense(128, activation='relu'),
+    layers.Dense(1,activation='sigmoid')
 ])
 
 my_callbacks = [
-    EarlyStopping(monitor="val_loss", patience=300),
+    EarlyStopping(monitor="val_loss", patience=1000),
 ]
 
 model.compile(loss=root_mean_squared_error, 
               optimizer = tf.optimizers.Adam(learning_rate=1e-3))
 
-history = model.fit(train_features, train_labels, batch_size=65, epochs=1000, validation_data=(val_features, val_labels))
+history = model.fit(train_features, train_labels, batch_size=30, epochs=1000, validation_data=(val_features, val_labels),
+                    callbacks=my_callbacks)
 
 # Define the directory where you want to save the model
 base_directory = '/home/ivan/TrabajoTFG/Modelos'
@@ -147,7 +148,6 @@ training_loss = history.history['loss']
 
 validation_loss = history.history['val_loss']
 
-# Assuming you have arrays of training loss and validation loss
 epochs = range(1, len(training_loss) + 1)
 
 plt.figure(figsize=(10, 6))
