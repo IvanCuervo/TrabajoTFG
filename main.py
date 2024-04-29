@@ -11,11 +11,6 @@ from datetime import datetime
 from tensorflow.python.keras.callbacks import EarlyStopping
 from keras import backend as K
 
-# Check if GPU is available
-print(tf.config.list_physical_devices('GPU'))
-
-
-
 ################################################ FUNCIONES ################################################
 
 def mean_absolute_error(y_true, y_pred):
@@ -75,21 +70,19 @@ normalize = tf.keras.layers.experimental.preprocessing.Normalization()
 
 model = tf.keras.Sequential([
     normalize,
-    layers.Dense(8, activation='relu', input_shape=(code_features.shape[1],)),
-    layers.Dense(16, activation='relu'),
+    layers.Dense(16, activation='relu', input_shape=(code_features.shape[1],)),
     layers.Dense(32, activation='sigmoid'),
     layers.Dense(1)
 ])
-
 
 my_callbacks = [
     EarlyStopping(monitor="val_loss", patience=300),
 ]
 
 model.compile(loss=root_mean_squared_error, 
-              optimizer = tf.optimizers.Adam(learning_rate=1e-6))
+              optimizer = tf.optimizers.Adam(learning_rate=1e-3))
 
-history = model.fit(train_features, train_labels, batch_size=40, epochs=2, validation_data=(val_features, val_labels))
+history = model.fit(train_features, train_labels, batch_size=65, epochs=1000, validation_data=(val_features, val_labels))
 
 # Define the directory where you want to save the model
 base_directory = '/home/ivan/TrabajoTFG/Modelos'
@@ -117,30 +110,21 @@ print("Test Loss:", test_loss)
 # Make predictions on the test set
 predictions = model.predict(test_features)
 
-
-
 ################################################ BASELINES ################################################
 
 y_pred_b_rnd = np.random.random(len(test_labels)) #Random values
 merged_array = np.concatenate((train_labels, val_labels))
 y_pred_b_avg = [np.mean(merged_array)]*len(test_labels) # Baseline media (OJO, LA MEDIA SE OBTIENE DEL CONJUNTO DE ENTRENAMIENTO [O ENTRENAMIENTO+VAL] Y LA LOSS SERÍA SOBRE EL TEST)
 
-
-
-
-
 mae_rnd = mean_absolute_error(test_labels, y_pred_b_rnd)
 rmse_rnd = root_mean_squared_error(test_labels, y_pred_b_rnd)
 mse_rnd = mean_squared_error(test_labels, y_pred_b_rnd)
-
 
 rmse_avg = root_mean_squared_error(test_labels, y_pred_b_avg)
 mse_avg = mean_squared_error(test_labels, y_pred_b_avg)
 mae_avg = mean_absolute_error(test_labels, y_pred_b_avg)
 
 ################################################################################################
-
-
 
 print(f"Modelo             | {'RMSE':6s} |")
 print("-"*47)
@@ -159,7 +143,6 @@ plt.legend()
 plt.grid(True)
 plt.savefig(os.path.join(new_directory, 'puntos.png'))
 
-
 training_loss = history.history['loss']
 
 validation_loss = history.history['val_loss']
@@ -176,7 +159,6 @@ plt.ylabel('Loss')
 plt.legend()
 plt.grid(True)
 plt.savefig(os.path.join(new_directory, 'grafica.png'))
-
 
 # Save variables to a text file
 with open(os.path.join(new_directory, 'variables.txt'), 'w') as file:
