@@ -27,17 +27,18 @@ def mean_squared_error(y_true, y_pred):
 ################################################################################################################################################
 
 data = pd.read_csv(
-    "/home/ivan/TrabajoTFG/DatosGenes/DatosSinAmbiguoTransformadoCSV.csv",  delimiter=';',
-    names=["UnitProtein", "Actual", "Position", "Change", "Pathogenic"])
+    "/home/ivan/TrabajoTFG/DatosGenes/DatosCodificadosSinAmbiguoEnteros.csv",  delimiter=';',
+    names=["UnitProtein", "Position", "Pathogenic", "Actual_A", "Actual_C", "Actual_D", "Actual_E", "Actual_F", "Actual_G", "Actual_H", "Actual_I", "Actual_K", "Actual_L", "Actual_M", "Actual_N", "Actual_P", "Actual_Q", "Actual_R", "Actual_S", "Actual_T", "Actual_V", "Actual_W", "Actual_Y", "Change_A", "Change_C", "Change_D", "Change_E", "Change_F", "Change_G", "Change_H", "Change_I", "Change_K", "Change_L", 
+           "Change_M", "Change_N", "Change_P", "Change_Q", "Change_R", "Change_S", "Change_T", "Change_V", "Change_W", "Change_Y"])
 
 # Convert the DataFrame to a NumPy array
 data_features = data.to_numpy()
 
 # Convert label array to a supported numeric data type (e.g., float32)
-prob_label = data_features[:, 4]
+prob_label = data_features[:, 2]
 
 # Convert feature array to a supported numeric data type (e.g., float32)
-code_features = np.delete(data_features, 4, axis=1)
+code_features = np.delete(data_features, 2, axis=1)
 
 # Split data into train, test, and validation sets
 train_features, test_features, train_labels, test_labels = train_test_split(code_features, prob_label, test_size=0.1, random_state=42)
@@ -58,10 +59,10 @@ my_callbacks = [
 
 my_learning_rate = 1e-3
 my_batch_size = 30
-my_epoch = 4
+my_epoch = 1
 
 
-model.compile(loss=tf.losses.MeanSquaredError(), 
+model.compile(loss=tf.losses.MeanAbsoluteError(), 
               optimizer = tf.optimizers.Adam(learning_rate=my_learning_rate))
 
 
@@ -116,17 +117,6 @@ print(f"Baseline aleatorio | {rmse_rnd.numpy():0.4f} |")
 print(f"Baseline media     | {rmse_avg.numpy():0.4f} |")
 print(f"Mi modelo          | {root_mean_squared_error(test_labels, predictions).numpy():0.4f} |")
 
-
-# Create confusion matrix
-cm = confusion_matrix(test_labels, predictions)
-
-# Plot confusion matrix
-plt.figure(figsize=(8, 6))
-sns.heatmap(cm, annot=True, cmap='Blues', fmt='g')
-plt.xlabel('Predicted')
-plt.ylabel('True')
-plt.title('Confusion Matrix')
-plt.savefig(os.path.join(new_directory, 'Otra.png'))
 
 training_loss = history.history['loss']
 
