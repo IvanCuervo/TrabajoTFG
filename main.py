@@ -25,45 +25,20 @@ def mean_squared_error(y_true, y_pred):
 ################################################################################################################################################
 
 data = pd.read_csv(
-    "/home/ivan/TrabajoTFG/DatosGenes/DatosTratadosTodos.csv",  delimiter=';',
-    names=["code_column", "Probability"])
+    "/home/ivan/TrabajoTFG/DatosGenes/DatosSinAmbiguoTransformadoCSV.csv",  delimiter=';',
+    names=["UnitProtein", "Actual", "Position", "Change", "Pathogenic"])
 
-# Convert the code column to string
-data['code_column'] = data['code_column'].astype(str)
-
-# Split the code column into separate digits
-data['code_digits'] = data['code_column'].apply(lambda x: [int(digit) if digit.isdigit() else 0 for digit in x])
-
-# Create a DataFrame from the code_digits Series
-code_digits_df = pd.DataFrame(data['code_digits'].tolist(), columns=[f'digit_{i}' for i in range(len(data['code_digits'].iloc[0]))])
-
-# Concatenate the original DataFrame with the code_digits DataFrame
-data_encoded = pd.concat([data.drop(columns=['code_column', 'code_digits']), code_digits_df], axis=1)
-
-#Check for NAN values
-nan_counts = data_encoded.isna().sum()
-
-while nan_counts.sum() != 0:
-    nan_counts = data_encoded.isna().sum()
-    # Check if any NaN values exist in the DataFrame
-    if nan_counts.sum() == 0:
-        print("No NaN values found in the DataFrame.")
-    else:
-        print("%d NaN values found in the DataFrame. Changing them for 0" % nan_counts.sum())
-        data_encoded.fillna(0, inplace=True)
-        
-    
 # Convert the DataFrame to a NumPy array
-data_features = data_encoded.to_numpy()
+data_features = data.to_numpy()
 
-# 'X' contains the digit columns and 'y' contains the 'Probability' column
-prob_label = data_features[:, 0]   # Select all rows and the first column
-code_features = data_features[:, 1:]
+# Convert label array to a supported numeric data type (e.g., float32)
+prob_label = data_features[:, 4]
 
-# Splitting into train and test sets
+# Convert feature array to a supported numeric data type (e.g., float32)
+code_features = np.delete(data_features, 4, axis=1)
+
+# Split data into train, test, and validation sets
 train_features, test_features, train_labels, test_labels = train_test_split(code_features, prob_label, test_size=0.1, random_state=42)
-
-# Split the training set into training and validation sets
 train_features, val_features, train_labels, val_labels = train_test_split(train_features, train_labels, test_size=0.1, random_state=42)
 
 normalize = tf.keras.layers.experimental.preprocessing.Normalization()
@@ -79,14 +54,15 @@ my_callbacks = [
     EarlyStopping(monitor="val_loss", patience=1000),
 ]
 
-model.compile(loss=root_mean_squared_error, 
+model.compile(loss=tf.losses.MeanSquaredError(), 
               optimizer = tf.optimizers.Adam(learning_rate=1e-3))
+
 
 history = model.fit(train_features, train_labels, batch_size=30, epochs=1000, validation_data=(val_features, val_labels),
                     callbacks=my_callbacks)
 
 # Define the directory where you want to save the model
-base_directory = '/home/ivan/TrabajoTFG/Modelos'
+base_directory = '/home/ivan/TrabajoTFG/Modelos/Mayo'
 
 # Change the current working directory to the base directory
 os.chdir(base_directory)

@@ -1,0 +1,3 @@
+Baseline aleatorio: 0.321309930757284
+Baseline media: 0.12448662697008185
+Mi modelo: 0.12797155357201886

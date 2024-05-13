@@ -1,0 +1,3 @@
+Test loss: 0.6850144267082214
+Valor real: 0.495638473590826
+Valor predicho: [-0.2833809]
