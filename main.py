@@ -10,6 +10,8 @@ from tensorflow.python.keras.callbacks import LearningRateScheduler
 from datetime import datetime
 from tensorflow.python.keras.callbacks import EarlyStopping
 from keras import backend as K
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
 ################################################ FUNCIONES ################################################
 
@@ -54,11 +56,16 @@ my_callbacks = [
     EarlyStopping(monitor="val_loss", patience=1000),
 ]
 
+my_learning_rate = 1e-3
+my_batch_size = 30
+my_epoch = 4
+
+
 model.compile(loss=tf.losses.MeanSquaredError(), 
-              optimizer = tf.optimizers.Adam(learning_rate=1e-3))
+              optimizer = tf.optimizers.Adam(learning_rate=my_learning_rate))
 
 
-history = model.fit(train_features, train_labels, batch_size=30, epochs=1000, validation_data=(val_features, val_labels),
+history = model.fit(train_features, train_labels, batch_size=my_batch_size, epochs=my_epoch, validation_data=(val_features, val_labels),
                     callbacks=my_callbacks)
 
 # Define the directory where you want to save the model
@@ -109,16 +116,17 @@ print(f"Baseline aleatorio | {rmse_rnd.numpy():0.4f} |")
 print(f"Baseline media     | {rmse_avg.numpy():0.4f} |")
 print(f"Mi modelo          | {root_mean_squared_error(test_labels, predictions).numpy():0.4f} |")
 
-# Plot actual vs predicted probability
-plt.figure(figsize=(10, 6))
-plt.scatter(test_labels, predictions, color='blue', label='Predictions')
-plt.plot([test_labels.min(), test_labels.max()], [test_labels.min(), test_labels.max()], 'k--', lw=3, color='red', label='Actual')
-plt.xlabel('Actual probability')
-plt.ylabel('Predicted probability')
-plt.title('Actual vs Predicted probability')
-plt.legend()
-plt.grid(True)
-plt.savefig(os.path.join(new_directory, 'puntos.png'))
+
+# Create confusion matrix
+cm = confusion_matrix(test_labels, predictions)
+
+# Plot confusion matrix
+plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, cmap='Blues', fmt='g')
+plt.xlabel('Predicted')
+plt.ylabel('True')
+plt.title('Confusion Matrix')
+plt.savefig(os.path.join(new_directory, 'Otra.png'))
 
 training_loss = history.history['loss']
 
@@ -141,3 +149,6 @@ with open(os.path.join(new_directory, 'variables.txt'), 'w') as file:
     file.write(f"Baseline aleatorio: {rmse_rnd.numpy()}\n")
     file.write(f"Baseline media: {rmse_avg.numpy()}\n")
     file.write(f"Mi modelo: {root_mean_squared_error(test_labels, predictions).numpy()}\n")
+    file.write(f"Batch Size: {my_batch_size}\n")
+    file.write(f"Learning Rate: {my_learning_rate}\n")
+    file.write(f"Epochs: {my_epoch}\n")
