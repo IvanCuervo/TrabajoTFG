@@ -41,7 +41,7 @@ headNames = ["aa_pos", "provean_score", "sift_score", "evm_epistatic_score", "in
 
 
 data = pd.read_csv(
-    "/home/ivan/TrabajoTFG/DatosGenes/VarityR/VARITY_R_CSV_Tratado_Sin_ID.csv",  delimiter=';',
+    "/home/ivan/TrabajoTFG/DatosGenes/VarityR/Weight/VARITY_R_CSV_Tratado_Sin_ID.csv",  delimiter=';',
     names=headNames
 )
 
@@ -64,22 +64,24 @@ code_features = np.delete(data_features, 44, axis=1)
 train_features, test_features, train_labels, test_labels = train_test_split(code_features, prob_label, test_size=0.1, random_state=42)
 train_features, val_features, train_labels, val_labels = train_test_split(train_features, train_labels, test_size=0.1, random_state=42)
 
+# Normalize the data
 normalize = tf.keras.layers.experimental.preprocessing.Normalization()
 
 model = tf.keras.Sequential([
     normalize,
-    layers.Dense(64, activation='relu', input_shape=(code_features.shape[1],)),
-    layers.Dense(128, activation='relu'),
+    layers.Dense(16, activation='relu', input_shape=(code_features.shape[1],)),
+    layers.Dense(32, activation='relu'),
     layers.Dense(1,activation='sigmoid')
 ])
 
 my_callbacks = [
-    EarlyStopping(monitor="val_loss", patience=1000),
+    EarlyStopping(monitor="val_loss", patience=200),
 ]
 
-my_learning_rate = 1e-3
-my_batch_size = 30
-my_epoch = 1
+# Hyperparameters
+my_learning_rate = 1e-4
+my_batch_size = 70
+my_epoch = 1000
 
 
 model.compile(loss=tf.losses.MeanAbsoluteError(),
@@ -133,9 +135,9 @@ mae_avg = mean_absolute_error(test_labels, y_pred_b_avg)
 
 print(f"Modelo             | {'RMSE':6s} |")
 print("-"*47)
-print(f"Baseline aleatorio | {rmse_rnd.numpy():0.4f} |")
-print(f"Baseline media     | {rmse_avg.numpy():0.4f} |")
-print(f"Mi modelo          | {root_mean_squared_error(test_labels, predictions).numpy():0.4f} |")
+print(f"Baseline aleatorio | {mse_rnd.numpy():0.4f} |")
+print(f"Baseline media     | {mse_avg.numpy():0.4f} |")
+print(f"Mi modelo          | {mean_squared_error(test_labels, predictions).numpy():0.4f} |")
 
 
 training_loss = history.history['loss']

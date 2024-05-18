@@ -1,0 +1,6 @@
+Baseline aleatorio: 0.479789219165793
+Baseline media: 0.30231927512873813
+Mi modelo: 0.3488097027519155
+Batch Size: 70
+Learning Rate: 0.0001
+Epochs: 1000
