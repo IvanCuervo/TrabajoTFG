@@ -60,15 +60,6 @@ test_labels = test_labels.astype(int)
 
 # Normalize the data
 normalize = tf.keras.layers.experimental.preprocessing.Normalization()
-"""
-model = tf.keras.Sequential([
-    normalize,
-    layers.Dense(64, activation='relu', input_shape=(code_features.shape[1],)),
-    layers.Dense(32, activation='relu'),
-    layers.Dense(16, activation='relu'),
-    layers.Dense(1, activation='sigmoid')
-])
-"""
 
 model = tf.keras.Sequential()
 model.add(normalize)
@@ -88,7 +79,7 @@ my_callbacks = [
 ]
 
 model.compile(loss=tf.losses.BinaryCrossentropy(),
-              optimizer=tf.optimizers.Adam(learning_rate=my_learning_rate),
+              optimizer=tf.optimizers.Adamax(learning_rate=my_learning_rate),
               metrics=['Accuracy'])
 
 history = model.fit(train_features, train_labels, batch_size=my_batch_size, epochs=my_epoch, validation_data=(val_features, val_labels),
@@ -128,9 +119,6 @@ def mean_baseline(train_data, test_data):
     # Predict the mean value for all test data
     predictions = np.full_like(test_data, mean_value)
     return predictions
-
-
-
 
 # Calculate baseline metrics
 y_pred_b_avg = mean_baseline(train_labels, test_labels)  # Baseline media
